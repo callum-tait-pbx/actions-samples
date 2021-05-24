@@ -1,0 +1,31 @@
+# Workflow for getting node logs on failure from yarn / npm and webpack
+
+jobs:
+  get_node_logs_on_failure:
+    name: Get Node Logs
+    runs-on: ["default", "Linux"]
+    steps:
+      - name: Checkout Branch
+        uses: actions/checkout@v2
+      - name: Install
+        run: |
+          yarn install
+      - name: Deploy
+        run: |
+          sls deploy
+      - uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: logs-npm
+          path: |
+            ~/.npm/_logs/*.log
+          retention-days: 1
+      - uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: logs-webpack
+          path: |
+            .webpack/dependencies/package.json
+            .webpack/dependencies/yarn-error.log
+            .webpack/dependencies/yarn.lock
+          retention-days: 1
